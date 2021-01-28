@@ -1,0 +1,20 @@
+{
+    "author": "github.com/taplar",
+    "dependencies": {
+        "serve": "11.3.x",
+        "typescript": "4.1.x"
+    },
+    "description": "DDO Apps Character Planner",
+    "license": "MIT",
+    "name": "ddoapps-character-planner",
+    "repository": {},
+    "scripts": {
+        "app-build": "npm run app-copy-index && npm run app-copy-assets",
+        "app-copy-assets": "cp -r ./projects/app/assets ./dist",
+        "app-copy-index": "cp ./projects/app/src/index.html ./dist",
+        "build": "npm run clean && npx tsc && npm run app-build",
+        "clean": "rm -rf ./dist",
+        "server": "serve -p 8443 dist/"
+    },
+    "version": "0.0.0-alpha"
+}
