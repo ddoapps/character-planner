@@ -1,0 +1,7 @@
+:root {
+    --app-font-family: Arial, Helvetica, sans-serif;
+    --app-font-size: 14px;
+
+    --app-color-black-rgb: 0, 0, 0;
+    --app-color-black: rgb(var(--app-color-black-rgb));
+}
