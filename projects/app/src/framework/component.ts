@@ -1,30 +1,34 @@
 import { ComponentOptions } from "./interfaces/component-options.interface";
+import { VirtualDOM } from "./virtual-dom";
 
 export function Component ( componentOptions: ComponentOptions ): Function {
-    const { tagName, styles, template } = componentOptions;
-
     return function ( constructor: CustomElementConstructor ) {
         const classWrapper = class extends constructor {
+            private __shadowRoot: ShadowRoot;
+            //@ts-ignore
+            private __virtualDOM: VirtualDOM;
+
             constructor() {
                 super();
 
-                this.attachShadow({ mode: 'open' });
+                this.__shadowRoot = this.attachShadow({ mode: 'open' });
+                this.__virtualDOM = new VirtualDOM( this, componentOptions.template );
+
+                this.initializeStyles();
+            }
+
+            private initializeStyles (): void {
+                if ( !componentOptions.styles ) return;
 
                 const styleElement = document.createElement( 'style' );
 
-                styleElement.innerHTML = styles;
+                styleElement.innerHTML = componentOptions.styles;
 
-                this.shadowRoot?.append( styleElement );
-
-                const templateElement = document.createElement( 'span' );
-
-                templateElement.innerHTML = template;
-
-                this.shadowRoot?.append( ...templateElement.children );
+                this.__shadowRoot.append( styleElement );
             }
         };
 
-        customElements.define( tagName, classWrapper );
+        customElements.define( componentOptions.tagName, classWrapper );
 
         return classWrapper;
     };

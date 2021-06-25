@@ -1,5 +1,5 @@
 export interface ComponentOptions {
+    styles?: string;
     tagName: string;
-    styles: string;
     template: string;
 }
