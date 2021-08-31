@@ -1,12 +1,8 @@
-interface VirtualDOMAttribute {
-    name: string;
-    value: string;
-}
-
 export class VirtualDOMNode {
     attributes?: VirtualDOMAttribute[];
     children?: VirtualDOMNode[];
     classList?: string[];
+    domNode?: Node;
     nodeName?: string;
     textContent?: string|null;
 
@@ -18,11 +14,13 @@ export class VirtualDOMNode {
             this.classList = [ ... ( node as HTMLElement ).classList ];
             this.children = ( [ ... node.childNodes ] ?? [] ).map( VirtualDOMNode.build );
 
-            [ ... node.attributes ].forEach( ( { name, value } ) => {
-                if ( name !== 'class' ) {
-                    this.attributes?.push( { name, value } );
+            [ ... node.attributes ].reduce( ( attributes: VirtualDOMAttribute[], attribute ) => {
+                if ( attribute.name !== 'class' ) {
+                    attributes.push( { name: attribute.name, value: attribute.value } );
                 }
-            } );
+
+                return attributes;
+            }, this.attributes = [] );
         } else if ( node.nodeType === Node.TEXT_NODE ) {
             this.textContent = node.textContent;
         }
@@ -47,21 +45,23 @@ export class VirtualDOMNode {
         return virtualDOMNode;
     }
 
-    render (): DocumentFragment {
-        const fragment = document.createDocumentFragment();
-
-        if ( this.nodeName ) {
-            const element = document.createElement( this.nodeName );
-            
-            this.attributes?.forEach( ( { name, value } ) => element.setAttribute( name, value )  );
-            this.classList?.forEach( className => element.classList.add( className ) );
-            this.children?.forEach( child => element.appendChild( child.render() ) );
-            
-            fragment.appendChild( element );
-        } else if ( this.textContent ) {
-            fragment.appendChild( document.createTextNode( this.textContent ) );
+    render (): Node {
+        if ( !this.domNode ) {
+            if ( this.nodeName ) {
+                const element = document.createElement( this.nodeName );
+                
+                this.attributes?.forEach( ( { name, value } ) => element.setAttribute( name, value )  );
+                this.classList?.forEach( className => element.classList.add( className ) );
+                this.children?.forEach( child => element.appendChild( child.render() ) );
+                
+                this.domNode = element;
+            } else if ( this.textContent ) {
+                this.domNode = document.createTextNode( this.textContent );
+            } else {
+                this.domNode = document.createDocumentFragment();
+            }
         }
 
-        return fragment;
+        return this.domNode;
     }
 }

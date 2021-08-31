@@ -3,6 +3,7 @@ import { VirtualDOMNode } from "./virtual-dom-node";
 const domParser = new DOMParser();
 
 export class VirtualDOM {
+    domNode?: Node;
     virtualDOMNode?: VirtualDOMNode;
 
     constructor ( template?: string ) {
@@ -21,13 +22,15 @@ export class VirtualDOM {
         return virtualDOM;
     }
 
-    render (): DocumentFragment {
-        const fragment = document.createDocumentFragment();
-
-        if ( this.virtualDOMNode ) {
-            fragment.appendChild( this.virtualDOMNode.render() );
+    render (): Node {
+        if ( !this.domNode ) {
+            if ( this.virtualDOMNode ) {
+                this.domNode = this.virtualDOMNode.render();
+            } else {
+                this.domNode = document.createDocumentFragment();
+            }
         }
 
-        return fragment;
+        return this.domNode;
     }
 }
